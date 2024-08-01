@@ -1,29 +1,29 @@
 package com.danliuk;
 
-import com.danliuk.model.BusTicket;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Scanner;
+
+import static com.danliuk.logic.Parsing.*;
 
 public class Main {
     public static void main(String[] args) throws JsonProcessingException {
 
-        int x = 0;
+        Scanner scanner = new Scanner(System.in);
+        String option;
 
         do {
-            String input = getInput();
-            BusTicket busTicket = new ObjectMapper().readValue(input, BusTicket.class);
+            System.out.println("Choose the reading option:");
+            System.out.println("1. From console");
+            System.out.println("2. From file");
+            option = scanner.nextLine();
+        } while (!option.equals("1") && !option.equals("2"));
 
-            // TODO: ticket validation
-
-            System.out.println(busTicket.toString());
-            x++;
-
-        } while (x < 5);
-    }
-
-    private static String getInput() {
-        return new Scanner(System.in).nextLine();
+        if (option.equals("1")) {
+            parseByConsole();
+        }
+        else {
+            parseByFile();
+        }
     }
 }
