@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Parsing {
 
     public static void parseByConsole() throws JsonProcessingException{
-        Validation val = new Validation();
+        Validation validation = new Validation();
         int x = 0;
         do {
             String input = new Scanner(System.in).nextLine();
@@ -19,24 +19,24 @@ public class Parsing {
 
             // ticket validation
             //Show an error in the console if 1+ validation rule is violated
-            val.validate(busTicket);
+            validation.validate(busTicket);
 
             System.out.println(busTicket.toString());
             x++;
 
         } while (x < 5);
 
-        val.output();
+        validation.output();
     }
 
     /*1. An ability to read tickets from a file */
     public static void parseByFile() throws JsonProcessingException{
-        Validation val = new Validation();
+        Validation validation = new Validation();
         try {
             Scanner scanner = new Scanner(new File("src/main/resources/ticketData.txt"));
             while (scanner.hasNextLine()) {
                 BusTicket busTicket = new ObjectMapper().readValue(scanner.nextLine(), BusTicket.class);
-                val.validate(busTicket);
+                validation.validate(busTicket);
                 System.out.println(busTicket.toString());
             }
 
@@ -44,6 +44,6 @@ public class Parsing {
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
         }
-        val.output();
+        validation.output();
     }
 }

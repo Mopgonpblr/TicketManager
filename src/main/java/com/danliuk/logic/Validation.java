@@ -1,55 +1,19 @@
 package com.danliuk.logic;
 
-import com.danliuk.exceptions.PriceException;
-import com.danliuk.exceptions.StartDateException;
-import com.danliuk.exceptions.TicketTypeException;
 import com.danliuk.model.BusTicket;
 
 import java.time.LocalDate;
 
 public class Validation {
 
-    private int totalTickets = 0;
-    private int validTickets = 0;
-    private int startDateExceptions = 0;
-    private int priceExceptions = 0;
-    private int ticketTypeExceptions = 0;
+    private int totalTickets;
+    private int validTickets;
+    private int startDateViolations;
+    private int priceViolations;
+    private int ticketTypeViolations;
 
     public void validate(BusTicket busTicket) {
-        int exceptions = 0;
-
-        try {
-            validateTicketType(busTicket);
-        } catch (TicketTypeException e) {
-            System.out.println(e.getMessage());
-            this.ticketTypeExceptions++;
-            exceptions++;
-        }
-
-        try {
-            validateStartDate(busTicket);
-        } catch (StartDateException e) {
-            System.out.println(e.getMessage());
-            this.startDateExceptions++;
-            exceptions++;
-        }
-
-        try {
-            validatePrice(busTicket);
-        } catch (PriceException e) {
-            System.out.println(e.getMessage());
-            this.priceExceptions++;
-            exceptions++;
-        }
-
-        if (exceptions == 0) {
-            this.validTickets++;
-        }
-        this.totalTickets++;
-    }
-
-    public static void validateStartDate(BusTicket busTicket)
-            throws StartDateException {
+        int violations = 0;
 
         /* Only DAY, WEEK and YEAR types must have a [start date] */
         if (busTicket.getTicketType() != null &&
@@ -58,9 +22,9 @@ public class Validation {
                 && !busTicket.getTicketType().equals("YEAR")
                 && busTicket.getStartDate() != null
                 && !busTicket.getStartDate().isBlank()) {
-            throw new StartDateException
-                    ("Only DAY, WEEK and YEAR types must have a [start date]");
-
+            System.out.println("Only DAY, WEEK and YEAR types must have a [start date]");
+            this.startDateViolations++;
+            violations++;
         }
 
         /* 2. [start date] can't be in the future */
@@ -68,55 +32,63 @@ public class Validation {
                 && !busTicket.getStartDate().isBlank()) {
             LocalDate date = LocalDate.parse(busTicket.getStartDate());
             if (date.isAfter(LocalDate.now())) {
-                throw new StartDateException
-                        ("[start date] can't be in the future");
+                System.out.println("Only DAY, WEEK and YEAR types must have a [start date]");
+                this.startDateViolations++;
+                violations++;
             }
         }
-    }
 
-    public static void validateTicketType(BusTicket busTicket)
-            throws TicketTypeException {
-
-        // 3. [ticket type] valid values are DAY, WEEK, MONTH, YEAR
+        /* 3. [ticket type] valid values are DAY, WEEK, MONTH, YEAR */
         if (busTicket.getTicketType() == null ||
                 (!busTicket.getTicketType().equals("DAY")
                         && !busTicket.getTicketType().equals("WEEK")
                         && !busTicket.getTicketType().equals("MONTH")
                         && !busTicket.getTicketType().equals("YEAR"))) {
-            throw new TicketTypeException
-                    ("[ticket type] valid values are DAY, WEEK, MONTH, YEAR");
-        }
-    }
-
-    public static void validatePrice(BusTicket busTicket)
-            throws PriceException {
-        if (busTicket.getPrice() == null) {
-            throw new PriceException("Ticket price is null");
+            System.out.println("[ticket type] valid values are DAY, WEEK, MONTH, YEAR");
+            this.ticketTypeViolations++;
+            violations++;
         }
 
-        /* Price can't be zero */
-        if (Integer.parseInt(busTicket.getPrice()) == 0) {
-            throw new PriceException("Ticket price can't be 0");
+        if (busTicket.getPrice() != null) {
+            /* Price can't be zero */
+            if (Integer.parseInt(busTicket.getPrice()) == 0) {
+                System.out.println("Ticket price can't be 0");
+                this.priceViolations++;
+                violations++;
+            }
+
+            /* 4. [price] should always be even */
+            if (Integer.parseInt(busTicket.getPrice()) % 2 != 0) {
+                System.out.println("[price] should always be even");
+                this.priceViolations++;
+                violations++;
+            }
+        }
+        else
+        {
+            System.out.println("[price] is null");
+            this.priceViolations++;
+            violations++;
         }
 
-        /* 4. [price] should always be even */
-        if (Integer.parseInt(busTicket.getPrice()) % 2 != 0) {
-            throw new PriceException("[price] should always be even");
+        if (violations == 0) {
+            this.validTickets++;
         }
+        this.totalTickets++;
     }
 
     public void output() {
         System.out.println("Total = " + totalTickets);
         System.out.println("Valid = " + validTickets);
         System.out.print("Most popular violation = ");
-        if (this.startDateExceptions > this.priceExceptions
-                && this.startDateExceptions > this.ticketTypeExceptions) {
+        if (this.startDateViolations > this.priceViolations
+                && this.startDateViolations > this.ticketTypeViolations) {
             System.out.println("start date");
-        } else if (this.priceExceptions > this.startDateExceptions
-                && this.priceExceptions > this.ticketTypeExceptions) {
+        } else if (this.priceViolations > this.startDateViolations
+                && this.priceViolations > this.ticketTypeViolations) {
             System.out.println("price");
-        } else if (this.ticketTypeExceptions > this.startDateExceptions
-                && this.ticketTypeExceptions > this.priceExceptions) {
+        } else if (this.ticketTypeViolations > this.startDateViolations
+                && this.ticketTypeViolations > this.priceViolations) {
             System.out.println("ticket type");
         } else {
             System.out.println("equal");
